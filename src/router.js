@@ -15,10 +15,10 @@ MsauRouter
         } = req.body
         console.log(req.body)
         MsauService.getCodeGeom(
-                req.app.get('db'),
-                username,
-                password
-            )
+            req.app.get('db'),
+            username,
+            password
+        )
             .then(data => {
                 res
                     .status(201)
@@ -36,11 +36,15 @@ MsauRouter
         } = req.body
         console.log(req.body)
         MsauService.editSubmission(
-                req.app.get('db'),
-                drawGeom,
-                buffer
-            )
-            .then((res) => res.status(201))
+            req.app.get('db'),
+            drawGeom,
+            buffer
+        )
+            .then((editSubmissionRes) => {
+                console.log('RETURNING EDIT SUBMISSION');
+                console.log(editSubmissionRes);
+                res.status(201).json({ msg: 'SUCCESS' });
+            })
             .catch(next)
     })
 

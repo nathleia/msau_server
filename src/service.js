@@ -36,19 +36,25 @@ const MsauService = {
         } else {
             bufferSize = '25'
         }
-        bufferSize = parseInt(bufferSize) / 3.281
-        drawGeom.forEach(element => {
+        bufferSize = parseInt(bufferSize) / 3.281;
+
+        // .map returns an array, in this case, an array
+        // of promises
+        const promises = drawGeom.map(element => {
             if (element.operation === 'addition') {
                 if (element.type !== 'Polygon') {
+                    console.log('editSubmission');
                     console.log(element.operation)
                     console.log(element.type)
                     console.log(element.string)
                     console.log(bufferSize)
                     query = `insert into serviceareas_test (geom, dccode) values (st_multi(st_makevalid((st_buffer(ST_GeomFromText('${element.string}', 4326)::geography, ${bufferSize}))::geometry)),'${element.code}')`
                     console.log(query)
+
+                    // return the promise for the call to knex.raw
                     return knex.raw(`
-                                insert into serviceareas_test (geom, dccode) values (st_multi(st_makevalid((st_buffer(ST_GeomFromText('${element.string}', 4326)::geography, ${bufferSize}))::geometry)),'${element.code}')
-                `)
+                    insert into serviceareas_test (geom, dccode) values (st_multi(st_makevalid((st_buffer(ST_GeomFromText('${element.string}', 4326)::geography, ${bufferSize}))::geometry)),'${element.code}')
+                    `);
                 } else {
                     // if it's an addition and a polygon
                 }
@@ -59,7 +65,10 @@ const MsauService = {
                     // it's a subtraction and it is a polgone
                 }
             }
-        })
+        });
+
+        // use Promise.all to resolve all the calls to knex.raw
+        return Promise.all(promises);
     }
 
 }
